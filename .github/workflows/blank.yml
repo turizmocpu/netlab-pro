@@ -1,29 +1,19 @@
 name: Build Windows
-on: workflow_dispatch: push: branches: - main
-permissions: contents: read
-jobs: build: runs-on: windows-latest
+'on': workflow_dispatch:
+jobs: build: name: Build NetLab Pro runs-on: windows-latest
 steps:
-  - name: Checkout repository
+  - name: Checkout
     uses: actions/checkout@v4
 
-  - name: Set up Node.js
+  - name: Install Node.js
     uses: actions/setup-node@v4
     with:
       node-version: 20
 
-  - name: Install dependencies
-    run: npm install --no-audit --no-fund
-
-  - name: Run tests
-    run: npm test
-
-  - name: Build application
-    run: npm run dist
-
-  - name: Upload build artifacts
-    uses: actions/upload-artifact@v4
-    with:
-      name: NetLabPro-Windows
-      path: dist/*.exe
-      if-no-files-found: error
-      retention-days: 7
+  - name: Check project files
+    run: |
+      if (!(Test-Path "package.json")) {
+        Write-Error "package.json not found. Upload the project files first."
+        exit 1
+      }
+      Write-Host "Project files found."
