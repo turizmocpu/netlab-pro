@@ -1,0 +1,70 @@
+{
+  "name": "netlab-pro",
+  "version": "1.0.0",
+  "description": "NetLab Pro: network engineering and cybersecurity simulator",
+  "author": "NetLab Pro",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node tests/run-tests.js",
+    "dist": "electron-builder --win --x64 --publish never",
+    "build": "node scripts/build.js"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.netlabpro.app",
+    "productName": "NetLab Pro",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**",
+      "assets/**"
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "artifactName": "NetLabPro-Setup.${ext}",
+      "language": "1049",
+      "displayLanguageSelector": false,
+      "shortcutName": "NetLab Pro",
+      "uninstallDisplayName": "NetLab Pro",
+      "deleteAppDataOnUninstall": false,
+      "perMachine": false,
+      "runAfterFinish": true
+    },
+    "portable": {
+      "artifactName": "NetLabPro-Portable.${ext}"
+    },
+    "forceCodeSigning": false,
+    "compression": "normal"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

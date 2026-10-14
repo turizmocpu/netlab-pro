@@ -1,0 +1,279 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>NetLab Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'">
+<style>
+:root{--bg:#14171c;--pn:#0f1b2d;--ln:#223552;--tx:#cfe0f5;--mu:#7f95b3;--cy:#3cc8e8;--bl:#4a86ff;--gr:#3ecf8e;--am:#f0b429;--rd:#ff5c6c;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:13px/1.45 'IBM Plex Sans',system-ui,sans-serif}
+#app{height:100%;display:grid;grid-template:44px 1fr 270px/150px 1fr 310px;grid-template-areas:"h h h" "l c r" "b b b"}
+header{grid-area:h;display:flex;gap:6px;align-items:center;padding:0 10px;background:var(--pn);border-bottom:1px solid var(--ln);overflow-x:auto;white-space:nowrap}
+header b{font-size:15px;color:var(--cy);margin-right:8px;letter-spacing:.3px}
+#pal{grid-area:l}#pr{grid-area:r}#pal,#pr{background:var(--pn);padding:10px;overflow:auto;border:0 solid var(--ln)}#pal{border-right-width:1px}#pr{border-left-width:1px}
+main{grid-area:c;min-height:0}#cv{width:100%;height:100%;display:block;touch-action:none}
+#bt{grid-area:b;background:var(--pn);border-top:1px solid var(--ln);display:flex;flex-direction:column;min-height:0}
+#tabs{display:flex;gap:2px;padding:4px 8px 0;border-bottom:1px solid var(--ln);overflow-x:auto}
+#tabs button{border-radius:6px 6px 0 0;border-bottom:0}#tabs button.on{background:var(--ln);color:#fff}
+#tp{flex:1;overflow:auto;padding:8px 10px;min-height:0}
+button{background:#17283f;color:var(--tx);border:1px solid var(--ln);border-radius:6px;padding:5px 9px;font:inherit;cursor:pointer;transition:background .15s,border-color .15s}
+button:hover{background:#1e3555;border-color:var(--cy)}button.on{border-color:var(--cy);color:var(--cy)}button.danger:hover{border-color:var(--rd)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--cy);outline-offset:1px}
+input,select,textarea{background:#0b1422;color:var(--tx);border:1px solid var(--ln);border-radius:6px;padding:5px 7px;font:12px 'IBM Plex Mono',monospace;width:100%;margin:3px 0}
+textarea{min-height:70px}.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.row input,.row select{width:auto;flex:1;min-width:90px}
+#pal button{display:block;width:100%;margin-bottom:6px;text-align:left}#pal h4,#pr h3,#tp h4{margin:10px 0 6px;font-size:12px;color:var(--mu);font-weight:600}
+#pr h3{font-size:15px;color:var(--tx);margin-top:0}small,.mu{color:var(--mu)}.g{color:var(--gr)}.a{color:var(--am)}.r{color:var(--rd)}
+.box{border:1px solid var(--ln);border-radius:8px;padding:8px;margin:8px 0;background:#0c1626}.warn{color:var(--am);font-size:12px;margin-top:4px}
+.kv{width:100%;border-collapse:collapse;font:11px 'IBM Plex Mono',monospace;margin-top:6px}.kv td{padding:1px 4px;border-bottom:1px solid #162840}.kv td:first-child{color:var(--mu)}
+table.t{width:100%;border-collapse:collapse;font:11px 'IBM Plex Mono',monospace}table.t th{text-align:left;color:var(--mu);font-weight:500;position:sticky;top:0;background:var(--pn)}table.t td,table.t th{padding:2px 6px;white-space:nowrap}
+table.t tr.p:hover{background:#17283f;cursor:pointer}tr.d td{color:var(--rd)}tr.s td{background:#1a3250}
+.tl{font:12px 'IBM Plex Mono',monospace;white-space:pre-wrap;max-height:150px;overflow:auto;background:#0b1422;border:1px solid var(--ln);border-radius:6px;padding:6px;margin-bottom:4px}
+.al{border-left:3px solid var(--rd);background:#1a1420;padding:6px 8px;margin:6px 0;border-radius:0 6px 6px 0}.al.m{border-color:var(--am)}
+.cells{display:grid;grid-template-columns:repeat(32,1fr);gap:1px;max-width:420px}.cells i{aspect-ratio:1;background:#1b2b44;border-radius:1px}.cells .n{background:var(--bl)}.cells .b{background:var(--rd)}.cells .o{background:var(--cy)}.cells .gw{background:var(--gr)}.cells .p{background:#3b5b8a}
+#toast{position:fixed;left:50%;bottom:290px;transform:translateX(-50%);background:#1e3555;border:1px solid var(--cy);padding:6px 12px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}#toast.on{opacity:1}
+.empty{color:var(--mu);padding:14px 4px}
+@media(max-width:800px){body{overflow:auto}#app{height:auto;display:flex;flex-direction:column}main{height:55vh;flex:none}#pal{display:flex;flex-wrap:wrap;gap:6px}#pal button{width:auto;margin:0}#bt{height:360px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div id="app">
+<header><b>NetLab Pro</b><button id="bCable" onclick="setMode()">Cable (C)</button><button onclick="delSel()" class="danger">Delete (Del)</button><button onclick="sample()">Load sample lab</button><button onclick="resetSim()">Reset simulation</button><button onclick="clearAll()" class="danger">Clear project</button><span class="mu" id="hint"></span></header>
+<aside id="pal"><h4>Add device (click)</h4></aside>
+<main><svg id="cv" viewBox="0 0 900 560"><defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#1c2430"/></pattern></defs><rect width="900" height="560" fill="url(#g)"/><g id="ly"></g><g id="dots"></g></svg></main>
+<aside id="pr"></aside>
+<section id="bt"><div id="tabs"></div><div id="tp"></div></section>
+</div><div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const T={pc:{n:'PC',c:'#4a86ff',k:1,l:'PC'},laptop:{n:'LT',c:'#6aa0ff',k:1,l:'Laptop'},server:{n:'SRV',c:'#3ecf8e',k:1,l:'Server'},router:{n:'R',c:'#3cc8e8',k:4,l:'Router'},switch:{n:'SW',c:'#b48cff',k:0,l:'Switch (L2)'},firewall:{n:'FW',c:'#ff8a5c',k:4,l:'Firewall'}};
+let S={devs:[],links:[],nid:1,lid:1},R={pk:[],ev:[],al:[],t:0,arp:{},mac:{},term:[]},sel=null,selL=null,mode='sel',from=null,tab='term',selP=null,atk={a:0,t:0,lock:true,rl:true},flt='';
+/* ---------- IPv4 math ---------- */
+const ip2n=s=>{const m=/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec((s||'').trim());if(!m)return null;let n=0;for(let i=1;i<5;i++){if(+m[i]>255)return null;n=n*256+ +m[i]}return n};
+const n2ip=n=>[n>>>24,n>>>16&255,n>>>8&255,n&255].join('.');
+const mk=l=>l<=0?0:(0xFFFFFFFF<<(32-l))>>>0;
+const m2l=s=>{const n=ip2n(s);if(n===null)return -1;const inv=(~n)>>>0;if((inv&(inv+1))!==0)return -1;return 32-Math.round(Math.log2(inv+1))};
+function calc(n,l){const m=mk(l),net=(n&m)>>>0,bc=(net|~m)>>>0,tot=2**(32-l);return{m,net,bc,tot,us:l==32?1:l==31?2:tot-2,first:l>=31?net:net+1,last:l==32?net:l==31?bc:bc-1,wc:(~m)>>>0,bin:[24,16,8,0].map(s=>((m>>>s)&255).toString(2).padStart(8,'0')).join('.'),hostOk:l>=31||(n!=net&&n!=bc)}}
+const inNet=(f,n)=>ip2n(f.ip)!==null&&n!==null&&((ip2n(f.ip)&mk(f.len))>>>0)===((n&mk(f.len))>>>0);
+function parseAddr(v){v=v.trim();let m=/^([\d.]+)\s*\/\s*(\d+)$/.exec(v);if(m){const n=ip2n(m[1]);if(n===null||+m[2]>32)return null;return{ip:m[1],len:+m[2]}}
+m=/^([\d.]+)\s+([\d.]+)$/.exec(v);if(m){const l=m2l(m[2]);if(ip2n(m[1])===null)return null;if(l<0)return{err:'Invalid subnet mask '+m[2]+' (ones must be contiguous)'};return{ip:m[1],len:l}}
+return ip2n(v)!==null?{ip:v,len:null}:null}
+function calcHtml(n,l){const c=calc(n,l);return`<table class="kv"><tr><td>mask</td><td>${n2ip(c.m)} (/${l})</td></tr><tr><td>binary</td><td>${c.bin}</td></tr><tr><td>network</td><td>${n2ip(c.net)}</td></tr><tr><td>broadcast</td><td>${l>=31?'n/a (/'+l+')':n2ip(c.bc)}</td></tr><tr><td>hosts</td><td>${n2ip(c.first)} – ${n2ip(c.last)}</td></tr><tr><td>total / usable</td><td>${c.tot} / ${c.us}</td></tr><tr><td>wildcard</td><td>${n2ip(c.wc)}</td></tr><tr><td>assignable</td><td class="${c.hostOk?'g':'r'}">${c.hostOk?'yes':'no (network/broadcast)'}</td></tr></table>`}
+/* ---------- model ---------- */
+const dev=id=>S.devs.find(v=>v.id==id),nm=id=>esc(dev(id).name);
+const linkAt=(d,i)=>S.links.find(l=>(l.a.d==d&&l.a.i==i)||(l.b.d==d&&l.b.i==i));
+const hx=n=>(n&255).toString(16).padStart(2,'0'),mac=(d,i)=>'02:00:00:00:'+hx(d.id)+':'+hx(i+1);
+function addDev(type,x,y){const t=T[type],d={id:S.nid++,type,name:t.n+(S.devs.filter(v=>v.type==type).length+1),x,y,ifs:[],gw:'',open:type=='server'?'22,80,443':'',deny:'',dhcp:false,routes:''};for(let i=0;i<t.k;i++)d.ifs.push({ip:'',len:24});S.devs.push(d);return d}
+function connect(a,b){const A=dev(a),B=dev(b);if(a==b)return toast('Pick two different devices');const fr=d=>d.type=='switch'?-1:d.ifs.findIndex((f,i)=>!linkAt(d.id,i));const ai=fr(A),bi=fr(B);
+if((A.type!='switch'&&ai<0)||(B.type!='switch'&&bi<0))return toast('No free port on '+(A.type!='switch'&&ai<0?A.name:B.name));S.links.push({id:S.lid++,a:{d:a,i:ai},b:{d:b,i:bi},up:true})}
+function pcOf(e){if(dev(e.d).type!='switch')return null;return e.pc||(e.pc={mode:'access',vlan:1,allowed:'all',native:1})}
+const tAllow=(c,v)=>{const a=String(c.allowed).trim().toLowerCase();return !a||a=='all'||a.split(',').map(x=>+x).includes(v)};
+const pAllow=(e,v)=>{const c=pcOf(e);return !c||(c.mode=='access'?c.vlan==v:tAllow(c,v))};
+function seg(d,i){const out=[],via=[],l=linkAt(d.id,i);if(!l||!l.up)return{out,via,vlan:0};const e=(l.a.d==d.id&&l.a.i==i)?l.b:l.a,p0=pcOf(e),v=p0?(p0.mode=='access'?p0.vlan:p0.native):1,seen=new Set(),q=[[e,l]];
+while(q.length){const[x,fr]=q.shift(),xd=dev(x.d);if(xd.type=='switch'){if(seen.has(xd.id)||!pAllow(x,v))continue;seen.add(xd.id);via.push(xd.id);S.links.filter(k=>k!==fr&&k.up&&(k.a.d==xd.id||k.b.d==xd.id)).forEach(k=>{const mine=k.a.d==xd.id?k.a:k.b;if(pAllow(mine,v))q.push([k.a.d==xd.id?k.b:k.a,k])})}else out.push({d:xd,i:x.i})}return{out,via,vlan:v}}
+const routes=o=>o.routes.split('\n').map(l=>/^\s*([\d.]+)\/(\d+)\s+via\s+([\d.]+)/.exec(l)).filter(m=>m&&ip2n(m[1])!==null&&ip2n(m[3])!==null).map(m=>({n:(ip2n(m[1])&mk(+m[2]))>>>0,l:+m[2],via:ip2n(m[3]),s:m[0].trim()}));
+/* ---------- simulation engine ---------- */
+function pkt(o){R.t+=5+Math.floor(Math.random()*20);const p={n:R.pk.length+1,t:R.t,len:64,flags:'',sp:'',dp:'',l4:'',drop:'',...o};R.pk.push(p);return p}
+function ev(sev,dv,msg,kind,src){R.ev.push({t:R.t,sev,dev:dv,msg,kind,src})}
+function send(src,dip,proto,port){const dst=ip2n(dip),tag=proto=='icmp'?'icmp':String(port),path=[src.id],sp=proto=='tcp'?40000+Math.floor(Math.random()*20000):'';
+let ci=src.ifs.findIndex(f=>ip2n(f.ip)!==null&&inNet(f,dst)),nh=dst;const F=(r,at,fl)=>({ok:false,reason:r,path,at,filtered:fl});
+if(ci<0){ci=src.ifs.findIndex(f=>ip2n(f.ip)!==null);if(ci<0)return F(src.name+': interface has no IP address');if(ip2n(src.gw)===null)return F('Destination host unreachable: no default gateway configured on '+src.name);nh=ip2n(src.gw);if(!inNet(src.ifs[ci],nh))return F(`Default gateway ${src.gw} is outside ${src.name}'s subnet`)}
+const sip=src.ifs[ci].ip,den=o=>o.deny.split(',').map(s=>s.trim()).includes(tag);let cur=src;
+for(let hop=0;hop<8;hop++){const ifc=cur.ifs[ci],{out,via,vlan}=seg(cur,ci),hits=out.filter(p=>ip2n(p.d.ifs[p.i].ip)===nh),hit=hits[0],arp=R.arp[cur.id]||(R.arp[cur.id]={}),k=n2ip(nh);
+via.forEach(s=>(R.mac[s]||(R.mac[s]={}))[vlan+'|'+mac(cur,ci)]=cur.name);
+if(!hit){delete arp[k];pkt({sm:mac(cur,ci),dm:'ff:ff:ff:ff:ff:ff',sip:ifc.ip,dip:k,proto:'ARP',len:42,info:`Who has ${k}? Tell ${ifc.ip}`,drop:'No ARP reply',path:[cur.id,...via]});return F(`ARP timeout on ${cur.name}: nothing on this segment owns ${k} (check cable, address, gateway and VLAN/trunk settings)`)}
+if(hits.length>1)ev('warn',hit.d.name,`Duplicate IP ${k} answered by ${hits.length} hosts`,'dup');
+if(!arp[k]){pkt({sm:mac(cur,ci),dm:'ff:ff:ff:ff:ff:ff',sip:ifc.ip,dip:k,proto:'ARP',len:42,info:`Who has ${k}? Tell ${ifc.ip}`,path:[cur.id,...via,hit.d.id]});arp[k]=mac(hit.d,hit.i);pkt({sm:arp[k],dm:mac(cur,ci),sip:k,dip:ifc.ip,proto:'ARP',len:42,info:`${k} is at ${arp[k]}`,path:[hit.d.id,...via,cur.id]})}
+path.push(...via,hit.d.id);const o=hit.d,oi=hit.i,dm=arp[k];
+const hp=pkt({sm:mac(cur,ci),dm,sip,dip,proto:proto=='icmp'?'ICMP':'TCP',l4:proto=='icmp'?'ICMP':'TCP',sp,dp:port||'',flags:proto=='tcp'?'SYN':'',info:proto=='icmp'?'Echo (ping) request':`${sp} → ${port} [SYN]`,len:proto=='icmp'?74:60,path:[...path]});
+if(ip2n(o.ifs[oi].ip)===dst){if(den(o)){hp.drop='Denied by rule on '+o.name;return F(`Filtered: ${o.name} drops ${tag}`,o.name,true)}
+let state='reply';if(proto=='tcp')state=o.open.split(',').map(s=>s.trim()).includes(String(port))?'open':'closed';
+if(!inNet(o.ifs[oi],ip2n(sip))&&ip2n(o.gw)===null)return hp.drop='Reply cannot be routed',F(`Reply dropped: ${o.name} has no route back to ${sip} (no default gateway)`,o.name);
+pkt({sm:mac(o,oi),dm:mac(cur,ci),sip:dip,dip:sip,proto:proto=='icmp'?'ICMP':'TCP',l4:proto=='icmp'?'ICMP':'TCP',sp:port||'',dp:sp,flags:proto=='tcp'?(state=='open'?'SYN,ACK':'RST,ACK'):'',info:proto=='icmp'?'Echo (ping) reply':state=='open'?'SYN-ACK':'RST (port closed)',path:[...path].reverse()});
+ev('info',o.name,proto=='icmp'?`ICMP echo from ${sip}`:`TCP ${port} from ${sip}: ${state}`,'conn',sip);return{ok:true,state,path,hops:hop}}
+if(o.type!='router'&&o.type!='firewall')return hp.drop='Not forwarding',F(`${o.name} is not a router and does not forward packets (gateway wrong?)`,o.name);
+if(den(o)){hp.drop='Denied by firewall rule on '+o.name;ev('warn',o.name,`DENY ${tag} ${sip} → ${dip}`,'deny',sip);return F(`Filtered: dropped by rule on ${o.name}`,o.name,true)}
+let oj=o.ifs.findIndex(f=>ip2n(f.ip)!==null&&inNet(f,dst));nh=dst;
+if(oj<0){const r=routes(o).filter(r=>((dst&mk(r.l))>>>0)==r.n).sort((a,b)=>b.l-a.l)[0];if(r){nh=r.via;oj=o.ifs.findIndex(f=>ip2n(f.ip)!==null&&inNet(f,r.via))}else if(ip2n(o.gw)!==null){nh=ip2n(o.gw);oj=o.ifs.findIndex(f=>ip2n(f.ip)!==null&&inNet(f,nh))}}
+if(oj<0)return hp.drop='No route',F(`Destination net unreachable: ${o.name} has no route to ${dip}`,o.name);cur=o;ci=oj}
+return F('TTL exceeded (routing loop?)')}
+/* ---------- detection ---------- */
+function alr(key,a){if(!R.al.find(x=>x.key==key))R.al.push({key,t:R.t,...a})}
+function detect(){const g={};R.pk.filter(p=>p.flags=='SYN').forEach(p=>{const k=p.sip+'>'+p.dip,x=g[k]||(g[k]={ports:new Set(),n:0,s:p.sip,d:p.dip,id:p.n});x.ports.add(p.dp);x.n++});
+Object.values(g).forEach(x=>{if(x.ports.size>=6)alr('scan'+x.s+x.d,{sev:'high',title:'Port scan detected',what:`${x.s} probed ${x.ports.size} different TCP ports on ${x.d}.`,devs:[x.s,x.d],evd:`${x.n} SYN packets to ${x.ports.size} distinct ports, starting at packet #${x.id}.`,verdict:'Highly suspicious, not proof of intent (vulnerability scanners look the same).',def:'Close unused ports, filter at the firewall, rate-limit new connections per source, alert on distinct-port counts.'})});
+const f={};R.ev.filter(e=>e.kind=='auth').forEach(e=>{const k=e.src+'>'+e.dev;f[k]=(f[k]||0)+1});
+Object.entries(f).forEach(([k,n])=>{if(n>=5)alr('bf'+k,{sev:'high',title:'Repeated failed logins',what:`${n} failed logins for one account: ${k.replace('>',' → ')}.`,devs:k.split('>'),evd:`${n} 'Failed login' events in the target's auth log.`,verdict:'Suspicious: consistent with brute-forcing, but could be a user with a wrong saved password.',def:'Account lockout, per-source rate limiting, MFA, key-based SSH, restrict the service to a management VLAN.'})});
+const dn={};R.ev.filter(e=>e.kind=='deny').forEach(e=>{dn[e.dev]=(dn[e.dev]||0)+1});Object.entries(dn).forEach(([k,n])=>{if(n>=3)alr('deny'+k,{sev:'med',title:'Firewall policy violations',what:`${k} denied ${n} connection attempts.`,devs:[k],evd:`${n} DENY events in its log.`,verdict:'Informational: the policy is working; review the source if the count keeps growing.',def:'Review whether sources are expected; block repeat offenders upstream.'})})}
+/* ---------- attacks (simulated only) ---------- */
+const aOut=t=>{$('#ar').textContent=t};
+const sv=()=>S.devs.filter(d=>d.type=='server'),cl=()=>S.devs.filter(d=>d.type!='server'&&d.type!='switch'&&d.ifs.length==1);
+function pick(){const a=dev(atk.a)||cl()[0],t=dev(atk.t)||sv()[0];if(!a||!t){aOut('Add a client and a server first (or load the sample lab).');return null}atk.a=a.id;atk.t=t.id;const ip=t.ifs[0].ip;if(ip2n(ip)===null){aOut('Target server has no IP address.');return null}return{a,t,ip}}
+function scan(){const p=pick();if(!p)return;const lines=[`Simulated SYN scan: ${p.a.name} → ${p.t.name} (${p.ip}), 10 virtual ports`];let last;
+[21,22,23,25,53,80,443,3306,8080,3389].forEach(pt=>{const r=send(p.a,p.ip,'tcp',pt);last=r;if(r.ok)lines.push(`${pt}\t${r.state}`);else if(r.filtered)lines.push(`${pt}\tfiltered (no response) by ${r.at}`);else lines.push(`${pt}\tunreachable: ${r.reason}`)});
+ev('warn',p.t.name,'Burst of SYN probes to many ports','scan',p.a.ifs[0].ip);detect();anim(last.path,last.ok);aOut(lines.join('\n')+'\n\nDefender view: many SYNs from one source to many different ports in a short time. See the Alerts tab.');render()}
+function brute(){const p=pick();if(!p)return;const r=send(p.a,p.ip,'tcp',22);if(!r.ok||r.state!='open')return aOut(`Cannot reach a login service (TCP 22) on ${p.t.name}: ${r.reason||'port '+r.state}`);
+const lines=['Mock auth DB: account "admin". 8 simulated attempts with fictional passwords.'];let fails=0,locked=false;
+for(let i=1;i<=8;i++){send(p.a,p.ip,'tcp',22);if(locked){lines.push(`#${i} rejected: account locked`);ev('info',p.t.name,'Login blocked: account locked','lock',p.a.ifs[0].ip);continue}
+fails++;lines.push(`#${i} failed login (pw-guess-${i})`);ev('warn',p.t.name,`Failed login for admin from ${p.a.ifs[0].ip} (#${i})`,'auth',p.a.ifs[0].ip);if(atk.lock&&fails>=5){locked=true;lines.push('→ lockout threshold (5) reached')}}
+detect();anim(r.path,true);aOut(lines.join('\n')+(atk.lock?'\n\nLockout stopped attempts 6–8.':'\n\nNo lockout: all attempts reached the service.'));render()}
+function flood(){const p=pick();if(!p)return;const r=send(p.a,p.ip,'tcp',80);if(!r.ok||r.state!='open')return aOut('No reachable web service on target: '+(r.reason||'port '+r.state));
+const L=[`Bounded synthetic SYN flood model (no real traffic). Host capacity 500 pkt/s. Rate limit: ${atk.rl?'ON (300 pkt/s per source)':'OFF'}`,'rate/s\tCPU\tlatency\tlegit loss'];
+[100,400,1600,6400].forEach(rt=>{const acc=atk.rl?Math.min(rt,300):rt,proc=Math.min(acc,500),cpu=Math.round(proc/5),lat=(2+Math.pow(cpu/100,3)*80+(acc>500?60:0)).toFixed(0),loss=acc>500?Math.round((1-500/acc)*100):0;L.push(`${rt}\t${cpu}%\t${lat}ms\t${loss}%`)});
+for(let i=0;i<10;i++)pkt({sm:mac(p.a,0),dm:mac(p.t,0),sip:p.a.ifs[0].ip,dip:p.ip,proto:'TCP',l4:'TCP',sp:50000+i,dp:80,flags:'SYN',info:'SYN (synthetic flood sample)',drop:atk.rl&&i>3?'Rate limit exceeded':'',path:r.path});
+ev('crit',p.t.name,`SYN rate spike from ${p.a.ifs[0].ip}, up to 6400 pkt/s (simulated)`,'flood',p.a.ifs[0].ip);
+alr('flood'+p.a.id+p.t.id,{sev:'crit',title:'Traffic spike / possible DoS',what:`${p.a.ifs[0].ip} sent a sudden surge of SYNs to ${p.ip}:80.`,devs:[p.a.ifs[0].ip,p.ip],evd:'SYN rate jumped from ~100 to ~6400 pkt/s; no matching completed handshakes.',verdict:'Likely malicious if sustained; could also be a misconfigured client or flash crowd.',def:'Per-source rate limits, SYN cookies, upstream filtering, upstream scrubbing, autoscaling.'});
+detect();anim(r.path,true);aOut(L.join('\n')+'\n\nToggle rate limiting and rerun to compare.');render()}
+/* ---------- terminal ---------- */
+function run(inp){const c=inp.value.trim();inp.value='';const d=dev(sel);const o=s=>{R.term.push(s)};o((d?d.name:'?')+'> '+c);if(!d)o('Select a device first.');else{const a=c.split(/\s+/),cmd=c.toLowerCase();
+if(!c);else if(cmd=='help')o('ipconfig | show ip interface brief | ping <ip> | arp -a | route print | show ip route | show mac address-table | show running-config\nSwitch: show vlan brief | show interfaces trunk | interface Gi0/N | switchport mode access|trunk | switchport access vlan N | switchport trunk allowed vlan LIST | switchport trunk native vlan N | vlan N\nNot simulated in this build: tracert, nslookup');
+else if(cmd=='show vlan brief'){o(d.type=='switch'?'VLAN Name            Ports\n'+vl().map(v=>String(v.id).padEnd(5)+v.name.padEnd(16)+swPorts(d).filter(p=>{const c=pcOf(p.e);return c.mode=='access'&&c.vlan==v.id}).map(p=>p.nm).join(', ')).join('\n'):'Only available on switches.')}
+else if(cmd=='show interfaces trunk'){o(d.type=='switch'?(swPorts(d).filter(p=>pcOf(p.e).mode=='trunk').map(p=>{const c=pcOf(p.e);return p.nm+'  trunk  native '+c.native+'  allowed '+(c.allowed||'all')}).concat(trunkWarns(d).map(w=>'! '+w)).join('\n')||'No trunk ports.'):'Only available on switches.')}
+else if(d.type=='switch'&&/^interface gi0\/\d+$/.test(cmd)){cp=swPorts(d).find(p=>p.nm.toLowerCase()==a[1].toLowerCase());o(cp?'Configuring '+cp.nm:'No such port (ports exist only where a cable is connected).')}
+else if(d.type=='switch'&&/^switchport /.test(cmd)){if(!cp||dev(cp.e.d)!==d)o('Select a port first: interface Gi0/1');else{const p=pcOf(cp.e);let m;
+if(cmd=='switchport mode access')p.mode='access';else if(cmd=='switchport mode trunk')p.mode='trunk';
+else if(m=/^switchport access vlan (\d+)$/.exec(cmd)){if(!vl().find(v=>v.id==+m[1]))o('VLAN '+m[1]+' does not exist. Create it first: vlan '+m[1]);else p.vlan=+m[1]}
+else if(m=/^switchport trunk allowed vlan ([\d,]+|all)$/.exec(cmd))p.allowed=m[1];
+else if(m=/^switchport trunk native vlan (\d+)$/.exec(cmd))p.native=+m[1];
+else o('Unsupported switchport command. Type help.')}}
+else if(d.type=='switch'&&/^vlan \d+$/.test(cmd)){const id=+a[1];if(id<2||id>4094)o('VLAN ID must be 2–4094');else if(!vl().find(v=>v.id==id)){vl().push({id,name:'VLAN'+id});o('VLAN '+id+' created')}}
+else if(a[0]=='ping'){const ip=a[1];if(ip2n(ip)===null)o(`Ping request could not find host ${ip||''}. Use an IPv4 address (DNS is not simulated).`);else if(d.type=='switch')o('Layer 2 switch has no IP stack in this build.');else{o(`Pinging ${ip}:`);let ok=0,last;for(let i=0;i<4;i++){const r=send(d,ip,'icmp');last=r;if(r.ok){ok++;o(`Reply from ${ip}: bytes=32 time=${1+r.hops*2}ms TTL=${64-r.hops}`)}else o('Request timed out.')}
+if(!ok)o('Reason: '+last.reason);o(`${ok}/4 replies`);anim(last.path,last.ok)}}
+else if(cmd=='ipconfig'||cmd=='show ip interface brief')o(d.ifs.map((f,i)=>`eth${i}  ${f.ip?f.ip+'/'+f.len:'unassigned'}  ${linkAt(d.id,i)?(linkAt(d.id,i).up?'up':'down (link failed)'):'down (no cable)'}`).join('\n')+(d.gw?'\nDefault gateway: '+d.gw:'\nDefault gateway: not set'));
+else if(cmd=='arp -a')o(Object.entries(R.arp[d.id]||{}).map(([k,v])=>`${k}  ${v}`).join('\n')||'No ARP entries.');
+else if(cmd=='route print'||cmd=='show ip route')o(d.ifs.filter(f=>ip2n(f.ip)!==null).map(f=>`C  ${n2ip(calc(ip2n(f.ip),f.len).net)}/${f.len} is directly connected`).concat(routes(d).map(r=>'S  '+r.s),d.gw?['S* 0.0.0.0/0 via '+d.gw]:[]).join('\n')||'No routes.');
+else if(cmd=='show mac address-table')o(d.type=='switch'?Object.entries(R.mac[d.id]||{}).map(([k,v])=>{const[vn,mc]=k.split('|');return`${vn}  ${mc}  DYNAMIC  ${v}`}).join('\n')||'Table empty (no traffic yet).':'Only available on switches.');
+else if(cmd=='show running-config')o(`hostname ${d.name}\n`+d.ifs.map((f,i)=>`interface eth${i}\n ip address ${f.ip||'unassigned'}/${f.len}`).join('\n')+(d.gw?`\nip default-gateway ${d.gw}`:'')+routes(d).map(r=>'\nip route '+r.s).join('')+(d.deny?`\ndeny ${d.deny}`:''));
+else o(`Unknown command "${c}". Type help.`)}
+render();drawTab();const t=$('#tl');if(t)t.scrollTop=1e9;const i=$('#ti');if(i)i.focus()}
+/* ---------- config actions ---------- */
+function cfg(k,i,v){const d=dev(sel);if(k=='name')d.name=v||d.name;else if(k=='gw')d.gw=v.trim();else if(k=='open'||k=='deny'||k=='routes')d[k]=v;else if(k=='dhcp')d.dhcp=v;else if(k=='addr'){if(!v.trim()){d.ifs[i].ip=''}else{const p=parseAddr(v);if(!p)toast('Invalid address. Try 192.168.10.25/24');else if(p.err)toast(p.err);else{d.ifs[i].ip=p.ip;if(p.len!==null)d.ifs[i].len=p.len}}}render();drawTab()}
+function used(){const s=new Set();S.devs.forEach(d=>d.ifs.forEach(f=>{if(ip2n(f.ip)!==null)s.add(ip2n(f.ip))}));return s}
+function suggest(i){const d=dev(sel),peer=seg(d,i).out.find(p=>ip2n(p.d.ifs[p.i].ip)!==null),u=used();
+if(peer){const f=peer.d.ifs[peer.i],c=calc(ip2n(f.ip),f.len);let n=c.first;while(n<=c.last&&u.has(n))n++;if(n>c.last)return toast('Subnet is full');d.ifs[i]={ip:n2ip(n),len:f.len};const r=seg(d,i).out.find(p=>p.d.type=='router'||p.d.type=='firewall');if(r&&d.type!='router'&&d.type!='firewall')d.gw=r.d.ifs[r.i].ip;toast('Suggested '+n2ip(n)+'/'+f.len+' from neighbour subnet')}
+else{let k=1;while([...u].some(x=>(x>>>8&255)==k&&(x>>>16)==0xC0A8))k++;d.ifs[i]={ip:`192.168.${k}.${d.type=='router'||d.type=='firewall'?1:10}`,len:24};toast('Suggested unused 192.168.'+k+'.0/24')}render();drawTab()}
+function dhcp(i){const d=dev(sel),{out,via}=seg(d,i),s=out.find(p=>p.d.dhcp&&ip2n(p.d.ifs[p.i].ip)!==null);if(!s)return toast('DHCP failed: no DHCP-enabled router reachable on this segment');
+const f=s.d.ifs[s.i],c=calc(ip2n(f.ip),f.len),u=used();let n=Math.min(c.first+99,c.last);while(n<=c.last&&u.has(n))n++;if(n>c.last)return toast('DHCP pool exhausted');
+['DISCOVER','OFFER','REQUEST','ACK'].forEach((t,k)=>pkt({sm:k%2?mac(s.d,s.i):mac(d,i),dm:k%2?mac(d,i):'ff:ff:ff:ff:ff:ff',sip:k%2?f.ip:'0.0.0.0',dip:k%2?n2ip(n):'255.255.255.255',proto:'DHCP',l4:'UDP',sp:k%2?67:68,dp:k%2?68:67,info:'DHCP '+t,len:342,path:[d.id,...via,s.d.id]}));
+d.ifs[i]={ip:n2ip(n),len:f.len};d.gw=f.ip;toast('DHCP lease '+n2ip(n)+'/'+f.len+', gateway '+f.ip);render();drawTab()}
+function warns(d,i){const f=d.ifs[i],w=[];if(!f.ip)return w;const n=ip2n(f.ip);if(n===null)return['Invalid IPv4 address'];const c=calc(n,f.len);
+if(!c.hostOk)w.push(n==c.net?'Network address: cannot be assigned to a host':'Broadcast address: cannot be assigned to a host');
+S.devs.forEach(o=>o.ifs.forEach((g,j)=>{if((o!==d||j!==i)&&g.ip===f.ip)w.push(`Duplicate IP: also on ${esc(o.name)} eth${j}`)}));
+d.ifs.forEach((g,j)=>{if(j!=i&&ip2n(g.ip)!==null){const a=calc(ip2n(g.ip),g.len);if(c.net<=a.bc&&a.net<=c.bc)w.push(`Subnet overlaps eth${j}`)}});
+if(i==0&&d.gw){const g=ip2n(d.gw);if(g===null)w.push('Invalid gateway address');else if(!inNet(f,g))w.push('Gateway is outside this subnet');else if(g===n)w.push('Gateway equals the host\'s own address')}return w}
+/* ---------- VLANs, mission, tests ---------- */
+let cp=null,mres=null;
+const vl=()=>S.vlans||(S.vlans=[{id:1,name:'default'}]),vcol=id=>`hsl(${(id*47+200)%360},65%,60%)`;
+const swPorts=d=>S.links.filter(l=>l.a.d==d.id||l.b.d==d.id).map((l,n)=>({nm:'Gi0/'+(n+1),l,e:l.a.d==d.id?l.a:l.b,o:l.a.d==d.id?l.b:l.a}));
+function trunkWarns(d){const w=[];swPorts(d).forEach(p=>{const c=pcOf(p.e);if(c.mode!='trunk')return;const o=dev(p.o.d),al=String(c.allowed).trim().toLowerCase();
+if(al&&al!='all')al.split(',').forEach(x=>{if(!vl().find(v=>v.id==+x))w.push(`${p.nm}: allowed VLAN "${x.trim()}" is not defined`)});
+if(o.type=='switch'){const oc=pcOf(p.o);if(oc.mode!='trunk')w.push(`${p.nm}: the far end on ${o.name} is an access port, so tagged VLANs will not pass`);else if(oc.native!=c.native)w.push(`${p.nm}: native VLAN mismatch (${c.native} here, ${oc.native} on ${o.name})`)}
+else w.push(`${p.nm}: trunk to ${o.name}, which is not a switch (router-on-a-stick is not supported)`);
+swPorts(d).forEach(q=>{const qc=pcOf(q.e);if(qc.mode=='access'&&!tAllow(c,qc.vlan))w.push(`${p.nm}: VLAN ${qc.vlan} (used by ${q.nm}) is not allowed on this trunk`)})});return w}
+function setPort(id,w,k,v){const p=pcOf(S.links.find(l=>l.id==id)[w]);p[k]=(k=='vlan'||k=='native')?+v:v;render()}
+function halo(d){if(d.type=='switch'||d.ifs.length!=1)return'';const l=linkAt(d.id,0);if(!l)return'';const c=pcOf(l.a.d==d.id?l.b:l.a);if(!c||c.mode!='access')return'';const k=vcol(c.vlan);return`<rect x="-35" y="-29" width="70" height="58" rx="13" fill="${k}" fill-opacity=".13" stroke="${k}" stroke-opacity=".45"/><text x="33" y="-31" text-anchor="end" font-size="9" fill="${k}">VLAN ${c.vlan}</text>`}
+function addVlan(){const id=+$('#vi').value,n=$('#vn').value.trim();if(!(id>=2&&id<=4094))return toast('VLAN ID must be between 2 and 4094');if(vl().find(v=>v.id==id))return toast('VLAN '+id+' already exists');vl().push({id,name:n||'VLAN'+id});vl().sort((a,b)=>a.id-b.id);render()}
+function renVlan(id,v){if(v.trim())vl().find(x=>x.id==id).name=v.trim();render()}
+function delVlan(id){if(S.devs.some(d=>d.type=='switch'&&swPorts(d).some(p=>{const c=pcOf(p.e);return c.mode=='access'&&c.vlan==id})))return toast('VLAN '+id+' still has access ports. Move them first.');S.vlans=vl().filter(v=>v.id!=id);render()}
+function vlTab(){const cnt=id=>S.devs.reduce((n,d)=>n+(d.type=='switch'?swPorts(d).filter(p=>{const c=pcOf(p.e);return c.mode=='access'&&c.vlan==id}).length:0),0);
+return`<p class="mu">A VLAN is a separate broadcast domain: hosts in different VLANs cannot talk without a router. Set port modes in the right panel when a switch is selected, or use the switch CLI. Not supported: router-on-a-stick and Layer 3 switch routing; use one router interface per VLAN.</p><table class="t"><tr><th>ID</th><th>Name</th><th>Access ports</th><th></th></tr>${vl().map(v=>`<tr><td><span style="color:${vcol(v.id)}">●</span> ${v.id}</td><td><input value="${esc(v.name)}" style="width:150px" onchange="renVlan(${v.id},this.value)"></td><td>${cnt(v.id)}</td><td>${v.id==1?'':`<button class="danger" onclick="delVlan(${v.id})">Delete</button>`}</td></tr>`).join('')}</table><div class="row"><input id="vi" type="number" placeholder="ID 2–4094"><input id="vn" placeholder="Name"><button onclick="addVlan()">Create VLAN</button></div><h4>Mission: office VLANs</h4><p>Split the office into Administration (10), IT (20) and Guest (30). Administration and IT must reach each other through R1 (one cable per VLAN); Guest must stay isolated. Create the VLANs, assign the switch ports, then address R1 eth0/eth1 as the gateways 10.10.10.1 and 10.10.20.1 (/24).</p><div class="row"><button onclick="mission()">Load mission</button><button onclick="missionCheck()">Check my work</button></div>${mres?mres.map(r=>`<div class="${r[1]?'g':'a'}">${r[1]?'✔':'✖'} ${r[0]}${r[1]?'':' — hint: '+r[2]}</div>`).join('')+(mres.every(r=>r[1])?'<b class="g">Mission complete.</b>':''):''}`}
+function mission(){if(S.devs.length&&!confirm('Replace the current project with the VLAN mission?'))return;S={devs:[],links:[],nid:1,lid:1,vlans:[{id:1,name:'default'}]};
+const H=(n,x,y,ip,gw)=>{const d=addDev('pc',x,y);d.name=n;d.ifs[0]={ip,len:24};d.gw=gw;return d};
+const a=H('Admin1',120,120,'10.10.10.10','10.10.10.1'),i=H('IT1',120,280,'10.10.20.10','10.10.20.1'),g=H('Guest1',120,440,'10.10.30.10','10.10.30.1'),sw=addDev('switch',340,280),r=addDev('router',580,280);sw.name='SW1';r.name='R1';
+[[a,sw],[i,sw],[g,sw],[r,sw],[r,sw]].forEach(([x,y])=>connect(x.id,y.id));sel=null;mres=null;resetSim();setTab('vlan');toast('Mission loaded: all ports start in VLAN 1')}
+function missionCheck(){const f=n=>S.devs.find(d=>d.name==n),r=f('R1');if(!r||!f('Admin1')||!f('IT1')||!f('Guest1')){mres=[['Mission devices Admin1, IT1, Guest1, R1 exist',false,'Load the mission first.']];return drawTab()}
+const hv=n=>{const d=f(n),l=linkAt(d.id,0),c=l&&pcOf(l.a.d==d.id?l.b:l.a);return c&&c.mode=='access'?c.vlan:0},V=id=>(vl().find(v=>v.id==id)||{}).name,legs=r.ifs.map((x,i)=>{const l=linkAt(r.id,i),c=l&&pcOf(l.a.d==r.id?l.b:l.a);return{v:c&&c.mode=='access'?c.vlan:0,ip:x.ip+'/'+x.len}});
+const gwOk=(v,ip)=>legs.some(x=>x.v==v&&x.ip==ip+'/24'),p1=send(f('Admin1'),'10.10.20.10','icmp'),p2=send(f('Guest1'),'10.10.10.10','icmp');
+mres=[['VLANs 10 Administration, 20 IT and 30 Guest exist',V(10)=='Administration'&&V(20)=='IT'&&V(30)=='Guest','Create them in the table above; names must match exactly.'],
+['Admin1, IT1 and Guest1 ports are access ports in VLAN 10, 20 and 30',hv('Admin1')==10&&hv('IT1')==20&&hv('Guest1')==30,'Select SW1 and check each port: the neighbour name tells you which host is behind it.'],
+['R1 has one cable in VLAN 10 and one in VLAN 20',legs.some(x=>x.v==10)&&legs.some(x=>x.v==20),'Two ports of SW1 lead to R1. Put one in VLAN 10 and the other in VLAN 20.'],
+['R1 gateway addresses are on the matching VLAN legs',gwOk(10,'10.10.10.1')&&gwOk(20,'10.10.20.1'),'The R1 cable in VLAN 10 needs 10.10.10.1/24, the one in VLAN 20 needs 10.10.20.1/24.'],
+['Admin1 can ping IT1 (routed between VLANs)',p1.ok,p1.reason||''],
+['Guest1 cannot reach Admin1 (isolation)',!p2.ok,'Guest1 reached Admin1: Guest must not share a VLAN or router leg with Administration.']];drawTab()}
+const freshR=()=>({pk:[],ev:[],al:[],t:0,arp:{},mac:{},term:[]});
+function tests(){const sS=JSON.stringify(S),sR=R,res=[],T_=(n,f)=>{try{res.push([n,!!f()])}catch(e){res.push([n+' (error: '+e.message+')',false])}};
+const lab=()=>{S={devs:[],links:[],nid:1,lid:1,vlans:[{id:1,name:'default'},{id:10,name:'A'},{id:20,name:'B'}]};R=freshR()};
+const H=(n,ip,gw)=>{const d=addDev('pc',0,0);d.name=n;d.ifs[0]={ip,len:24};d.gw=gw||'';return d};
+const pt=(sw,h,v)=>{connect(h.id,sw.id);const l=S.links[S.links.length-1];pcOf(l.a.d==sw.id?l.a:l.b).vlan=v;return l},ping=(a,b)=>send(a,b.ifs[0].ip,'icmp').ok;
+try{
+T_('Subnet /24 math',()=>{const c=calc(ip2n('192.168.10.25'),24);return n2ip(c.net)=='192.168.10.0'&&n2ip(c.bc)=='192.168.10.255'&&c.us==254&&c.bin=='11111111.11111111.11111111.00000000'});
+T_('Subnet /31 and /32 edge cases',()=>{const a=calc(ip2n('10.0.0.0'),31),b=calc(ip2n('10.0.0.7'),32);return a.us==2&&a.first==a.net&&b.us==1&&b.first==b.last});
+T_('Mask validation rejects non-contiguous masks',()=>m2l('255.255.255.0')==24&&m2l('255.0.255.0')<0);
+lab();{const sw=addDev('switch',0,0),a=H('a','10.0.0.1'),b=H('b','10.0.0.2');pt(sw,a,1);pt(sw,b,1);T_('Ping across one switch (VLAN 1)',()=>ping(a,b))}
+lab();{const sw=addDev('switch',0,0),a=H('a','10.0.0.1'),b=H('b','10.0.0.2'),c=H('c','10.0.0.3');pt(sw,a,10);pt(sw,b,10);pt(sw,c,20);
+T_('VLAN isolation: same VLAN works',()=>ping(a,b));T_('VLAN isolation: different VLAN fails',()=>!ping(a,c));T_('Isolation failure explains itself',()=>/ARP timeout/.test(send(a,'10.0.0.3','icmp').reason))}
+lab();{const sw=addDev('switch',0,0),r=addDev('router',0,0),a=H('a','192.168.10.10','192.168.10.1'),c=H('c','192.168.20.10','192.168.20.1');r.ifs[0]={ip:'192.168.10.1',len:24};r.ifs[1]={ip:'192.168.20.1',len:24};pt(sw,a,10);pt(sw,c,20);pt(sw,r,10);
+T_('Inter-VLAN fails with only one router leg',()=>!ping(a,c));pt(sw,r,20);T_('Inter-VLAN routing succeeds',()=>ping(a,c))}
+lab();{const s1=addDev('switch',0,0),s2=addDev('switch',0,0),a=H('a','10.0.0.1'),b=H('b','10.0.0.2');pt(s1,a,10);pt(s2,b,10);connect(s1.id,s2.id);const l=S.links[S.links.length-1],x=pcOf(l.a),y=pcOf(l.b);x.mode=y.mode='trunk';x.allowed=y.allowed='20';
+T_('Trunk missing VLAN blocks traffic',()=>!ping(a,b));T_('Trunk misconfiguration is reported',()=>trunkWarns(s1).some(w=>/not allowed/.test(w)));
+x.allowed=y.allowed='10,20';T_('Correct trunk carries VLAN 10',()=>ping(a,b)&&!trunkWarns(s1).length);y.native=5;T_('Native VLAN mismatch is reported',()=>trunkWarns(s1).some(w=>/native/.test(w)))}
+lab();{const sw=addDev('switch',0,0),a=H('a','10.0.0.1'),b=H('b','10.0.0.2'),c=H('c','10.0.0.3'),d=H('d','10.0.0.4');pt(sw,a,10);pt(sw,b,10);pt(sw,c,20);pt(sw,d,20);ping(a,b);ping(c,d);const k=Object.keys(R.mac[sw.id]||{});
+T_('MAC learning is per VLAN',()=>k.includes('10|'+mac(a,0))&&k.includes('20|'+mac(c,0))&&!k.includes('20|'+mac(a,0))&&!k.includes('10|'+mac(c,0)))}
+lab();{const a=H('a','10.0.0.1');T_('Ping without gateway fails with a reason',()=>/gateway/.test(send(a,'192.168.9.9','icmp').reason))}
+}finally{S=JSON.parse(sS);R=sR}return res}
+const runTests=()=>{const r=tests();out(r.map(t=>(t[1]?'PASS  ':'FAIL  ')+t[0]).join('\n')+'\n\n'+r.filter(t=>t[1]).length+'/'+r.length+' passed')};
+/* ---------- UI ---------- */
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2600)}
+function setMode(){mode=mode=='cable'?'sel':'cable';from=null;render()}
+function selectDev(id){sel=id;selL=null;render();drawTab()}
+function delSel(){if(selL){S.links=S.links.filter(l=>l.id!=selL);selL=null}else if(sel){S.links=S.links.filter(l=>l.a.d!=sel&&l.b.d!=sel);S.devs=S.devs.filter(d=>d.id!=sel);sel=null}render();drawTab()}
+function togLink(){const l=S.links.find(k=>k.id==selL);l.up=!l.up;ev(l.up?'info':'warn',nm(l.a.d)+' ↔ '+nm(l.b.d),l.up?'Link restored':'Link failed','link');render()}
+function resetSim(){R={pk:[],ev:[],al:[],t:0,arp:{},mac:{},term:[]};selP=null;render();drawTab();toast('Simulation state reset; configuration kept')}
+function clearAll(){if(confirm('Remove every device and cable from this project?')){S={devs:[],links:[],nid:1,lid:1};sel=selL=null;resetSim()}}
+function sample(){if(S.devs.length&&!confirm('Replace the current project with the sample lab?'))return;S={devs:[],links:[],nid:1,lid:1};
+const P=(t,x,y,n,ip,gw)=>{const d=addDev(t,x,y);d.name=n;d.ifs[0]={ip,len:24};d.gw=gw||'';return d};
+const a=P('pc',130,120,'PC1','192.168.10.10','192.168.10.1'),b=P('pc',130,280,'PC2','192.168.10.11','192.168.10.1'),c=P('laptop',130,440,'Attacker','192.168.10.66','192.168.10.1'),sw=addDev('switch',320,280),r=addDev('router',520,280),s=P('server',720,280,'SRV1','10.0.0.10','10.0.0.1');
+sw.name='SW1';r.name='R1';r.ifs[0]={ip:'192.168.10.1',len:24};r.ifs[1]={ip:'10.0.0.1',len:24};r.dhcp=true;
+[[a,sw],[b,sw],[c,sw],[sw,r],[r,s]].forEach(([x,y])=>connect(x.id,y.id));sel=null;resetSim();toast('Sample lab loaded. Select PC1 and run: ping 10.0.0.10')}
+function anim(path,ok){const pts=path.map(id=>dev(id)).filter(Boolean);if(pts.length<2)return;const g=$('#dots');g.innerHTML=`<circle r="6" fill="${ok?'#3ecf8e':'#ff5c6c'}"/>`;const c=g.firstChild;let i=0,t0=performance.now();
+const st=now=>{const k=Math.min((now-t0)/350,1),a=pts[i],b=pts[i+1];c.setAttribute('cx',a.x+(b.x-a.x)*k);c.setAttribute('cy',a.y+(b.y-a.y)*k);if(k>=1){i++;t0=now;if(i>=pts.length-1){setTimeout(()=>g.innerHTML='',500);return}}requestAnimationFrame(st)};requestAnimationFrame(st)}
+function render(){const L=[];S.links.forEach(l=>{const A=dev(l.a.d),B=dev(l.b.d),col=l.up?'#3ecf8e':'#ff5c6c',s=selL==l.id;
+const pt=(p,q,i)=>{const dx=q.x-p.x,dy=q.y-p.y,m=Math.hypot(dx,dy)||1;return`<text x="${p.x+dx/m*40}" y="${p.y+dy/m*40}" font-size="9" fill="#7f95b3" text-anchor="middle">${i<0?'':'e'+i}</text>`};
+L.push(`<g data-l="${l.id}"><line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${col}" stroke-width="${s?4:2}" ${l.up?'':'stroke-dasharray="5 4"'}/><line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="transparent" stroke-width="14" style="cursor:pointer"/>${pt(A,B,l.a.i)}${pt(B,A,l.b.i)}</g>`)});
+S.devs.forEach(d=>{const t=T[d.type],on=sel==d.id||from==d.id,f=d.ifs[0];L.push(`<g data-d="${d.id}" transform="translate(${d.x},${d.y})" style="cursor:${mode=='cable'?'crosshair':'grab'}">${halo(d)}<rect x="-28" y="-22" width="56" height="44" rx="9" fill="#0f1b2d" stroke="${on?'#fff':t.c}" stroke-width="${on?3:1.8}"/><text y="5" text-anchor="middle" font-size="13" font-weight="600" fill="${t.c}">${t.n}</text><text y="38" text-anchor="middle" font-size="11" fill="#cfe0f5">${esc(d.name)}</text>${d.ifs.length==1&&f.ip?`<text y="50" text-anchor="middle" font-size="9" fill="#7f95b3">${esc(f.ip)}/${f.len}</text>`:''}</g>`)});
+if(!S.devs.length)L.push('<text x="450" y="270" text-anchor="middle" fill="#7f95b3" font-size="14">Empty lab: add devices on the left, or load the sample lab.</text>');
+$('#ly').innerHTML=L.join('');$('#bCable').classList.toggle('on',mode=='cable');$('#hint').textContent=mode=='cable'?(from?'Click the second device':'Cable mode: click a device'):'Drag to move · click to select · C cable · Del delete';
+panel();if(tab!='term')drawTab();try{localStorage.setItem('netlab',JSON.stringify(S))}catch(e){}}
+function panel(){const el=$('#pr'),d=dev(sel),l=S.links.find(k=>k.id==selL);
+if(l){el.innerHTML=`<h3>Cable</h3><p>${nm(l.a.d)} eth${l.a.i<0?'-':l.a.i} ↔ ${nm(l.b.d)} eth${l.b.i<0?'-':l.b.i}<br>Status: <b class="${l.up?'g':'r'}">${l.up?'up':'down'}</b></p><div class="row"><button onclick="togLink()">${l.up?'Fail link':'Restore link'}</button><button class="danger" onclick="delSel()">Remove</button></div>`;return}
+if(!d){el.innerHTML='<div class="empty">Nothing selected.<br><br>Select a device to configure interfaces, see the subnet calculation and use its terminal. Select a cable to fail it.</div>';return}
+let h=`<h3>${esc(d.name)} <small>${T[d.type].l}</small></h3><input value="${esc(d.name)}" onchange="cfg('name',0,this.value)" aria-label="Device name">`;
+d.ifs.forEach((f,i)=>{const n=ip2n(f.ip),lk=linkAt(d.id,i);h+=`<div class="box"><b>eth${i}</b> ${lk?`<small class="${lk.up?'g':'r'}">${lk.up?'connected':'link down'}</small>`:'<small class="a">no cable</small>'}<input placeholder="192.168.10.25/24  or  IP + mask" value="${f.ip?esc(f.ip)+'/'+f.len:''}" onchange="cfg('addr',${i},this.value)" aria-label="Address eth${i}"><div class="row"><button onclick="suggest(${i})">Suggest</button>${d.type=='router'||d.type=='firewall'?'':`<button onclick="dhcp(${i})">DHCP</button>`}</div>${n!==null?calcHtml(n,f.len):''}${warns(d,i).map(x=>`<div class="warn">⚠ ${x}</div>`).join('')}</div>`});
+if(d.type!='switch'){h+=`<label class="mu">Default gateway</label><input value="${esc(d.gw)}" placeholder="192.168.10.1" onchange="cfg('gw',0,this.value)">`}
+if(d.type=='router'||d.type=='firewall')h+=`<label><input type="checkbox" style="width:auto" ${d.dhcp?'checked':''} onchange="cfg('dhcp',0,this.checked)"> DHCP server (leases .100 upward)</label><label class="mu">Static routes (one per line: 10.1.0.0/16 via 192.168.1.2)</label><textarea onchange="cfg('routes',0,this.value)">${esc(d.routes)}</textarea>`;
+if(d.type=='server')h+=`<label class="mu">Open TCP ports</label><input value="${esc(d.open)}" onchange="cfg('open',0,this.value)">`;
+if(d.type!='switch')h+=`<label class="mu">Deny list (icmp, or port numbers)</label><input value="${esc(d.deny)}" placeholder="icmp,22" onchange="cfg('deny',0,this.value)">`;
+if(d.type=='switch'){h+='<h4>Ports and VLANs</h4>';swPorts(d).forEach(p=>{const c=pcOf(p.e),w=p.l.a.d==d.id?'a':'b';h+=`<div class="box"><b>${p.nm}</b> <small>→ ${esc(dev(p.o.d).name)}</small><div class="row"><select onchange="setPort(${p.l.id},'${w}','mode',this.value)"><option value="access" ${c.mode=='access'?'selected':''}>access</option><option value="trunk" ${c.mode=='trunk'?'selected':''}>trunk</option></select>${c.mode=='access'?`<select onchange="setPort(${p.l.id},'${w}','vlan',this.value)">${vl().map(v=>`<option value="${v.id}" ${v.id==c.vlan?'selected':''}>VLAN ${v.id} ${esc(v.name)}</option>`).join('')}</select>`:`<input value="${esc(c.allowed)}" placeholder="allowed: all or 10,20" title="Allowed VLANs" onchange="setPort(${p.l.id},'${w}','allowed',this.value)"><input type="number" style="width:76px;flex:none" value="${c.native}" title="Native VLAN" onchange="setPort(${p.l.id},'${w}','native',this.value)">`}</div></div>`});trunkWarns(d).forEach(x=>h+=`<div class="warn">⚠ ${esc(x)}</div>`);if(!swPorts(d).length)h+='<div class="empty">Connect cables to create ports.</div>'}
+el.innerHTML=h+'<p><button class="danger" onclick="delSel()">Delete device</button></p>'}
+const TABS={term:'Terminal',pk:'Packets',al:'Alerts & events',sub:'Subnets',vlan:'VLAN',atk:'Attack lab',pj:'Project'};
+function setTab(t){tab=t;drawTab()}
+function drawTab(){$('#tabs').innerHTML=Object.entries(TABS).map(([k,v])=>`<button class="${k==tab?'on':''}" onclick="setTab('${k}')">${v}${k=='al'&&R.al.length?` <b class="r">${R.al.length}</b>`:''}</button>`).join('');const p=$('#tp'),d=dev(sel);let h='';
+if(tab=='term')h=`<div class="tl" id="tl">${esc(R.term.join('\n')||'Select a device, then type help.')}</div><div class="row"><span class="mu">${d?esc(d.name):'—'}&gt;</span><input id="ti" onkeydown="if(event.key=='Enter')run(this)" placeholder="ping 10.0.0.10" ${d?'':'disabled'} autocapitalize="off" autocomplete="off"></div>`;
+else if(tab=='pk'){const f=flt.trim().toLowerCase(),m=f.match(/^ip\.addr\s*==\s*([\d.]+)$/),q=f.match(/^(tcp|udp)\.port\s*==\s*(\d+)$/);
+const rows=R.pk.filter(x=>!f||(m?x.sip==m[1]||x.dip==m[1]:q?x.l4.toLowerCase()==q[1]&&(x.sp==q[2]||x.dp==q[2]):x.proto.toLowerCase()==f||x.l4.toLowerCase()==f)).slice(-200);
+h=`<div class="row"><input value="${esc(flt)}" placeholder="filter: tcp, udp, icmp, arp, dhcp, ip.addr == 10.0.0.10, tcp.port == 22" onchange="flt=this.value;drawTab()"></div>`+(R.pk.length?`<table class="t"><tr><th>#</th><th>time</th><th>source</th><th>destination</th><th>proto</th><th>len</th><th>info</th></tr>${rows.map(x=>`<tr class="p ${x.drop?'d':''} ${selP==x.n?'s':''}" onclick="selP=${x.n};drawTab()"><td>${x.n}</td><td>${(x.t/1000).toFixed(3)}</td><td>${x.sip}${x.sp?':'+x.sp:''}</td><td>${x.dip}${x.dp?':'+x.dp:''}</td><td>${x.proto}</td><td>${x.len}</td><td>${esc(x.info)}${x.drop?' ✖ '+esc(x.drop):''}</td></tr>`).join('')}</table>`:'<div class="empty">No packets yet. Run a ping or an attack scenario. (DNS is not simulated, so the dns filter matches nothing.)</div>');
+const x=R.pk.find(k=>k.n==selP);if(x)h+=`<h4>Packet #${x.n}: protocol tree</h4><div class="tl" style="max-height:none">Frame: ${x.len} bytes\nEthernet II  src ${x.sm}  dst ${x.dm}\n${x.proto=='ARP'?'ARP  '+esc(x.info):`IPv4  src ${x.sip}  dst ${x.dip}  TTL 64\n${x.l4}${x.sp?`  src port ${x.sp}  dst port ${x.dp}`:''}${x.flags?'  flags ['+x.flags+']':''}\n  ${esc(x.info)}`}\nDisposition: ${x.drop?'DROPPED – '+esc(x.drop):'delivered'}\nPath: ${(x.path||[]).map(id=>dev(id)?esc(dev(id).name):'?').join(' → ')}</div>`}
+else if(tab=='al'){h='<h4>Alerts (rule-based detection, no machine learning)</h4>'+(R.al.map(a=>`<div class="al ${a.sev=='med'?'m':''}"><b>${esc(a.title)}</b> <small>${a.sev}</small><br>${esc(a.what)}<br><span class="mu">Devices:</span> ${esc(a.devs.join(', '))}<br><span class="mu">Evidence:</span> ${esc(a.evd)}<br><span class="mu">Verdict:</span> ${esc(a.verdict)}<br><span class="mu">Defend:</span> ${esc(a.def)}</div>`).join('')||'<div class="empty">No alerts. Run a scenario in Attack lab.</div>')+'<h4>Event log</h4>'+(R.ev.length?`<table class="t"><tr><th>time</th><th>sev</th><th>device</th><th>event</th></tr>${R.ev.slice(-100).map(e=>`<tr><td>${(e.t/1000).toFixed(3)}</td><td class="${e.sev=='info'?'g':e.sev=='warn'?'a':'r'}">${e.sev}</td><td>${esc(e.dev)}</td><td>${esc(e.msg)}</td></tr>`).join('')}</table>`:'<div class="empty">No events yet.</div>')}
+else if(tab=='sub'){h=`<div class="row"><input id="sc" value="${esc(window._sc||'192.168.10.25/24')}" placeholder="192.168.10.25/24 or 192.168.10.25 255.255.255.0"><button onclick="window._sc=$('#sc').value;drawTab()">Calculate</button></div>`;const p2=parseAddr(window._sc||'192.168.10.25/24');
+if(!p2)h+='<p class="r">Invalid input.</p>';else if(p2.err)h+=`<p class="r">${p2.err}</p>`;else{const l=p2.len===null?24:p2.len,n=ip2n(p2.ip),c=calc(n,l);h+=calcHtml(n,l);
+if(l>=24){const u=used(),cells=[];for(let i=0;i<c.tot;i++){const a=c.net+i;let cls='';const dd=S.devs.find(d=>d.ifs.some(f=>ip2n(f.ip)===a));if(l<31&&a==c.net)cls='n';else if(l<31&&a==c.bc)cls='b';else if(dd)cls=dd.type=='router'||dd.type=='firewall'?'gw':'o';else if(S.devs.some(d=>d.dhcp&&d.ifs.some(f=>inNet(f,a)))&&i>=100&&i<200)cls='p';cells.push(`<i class="${cls}" title="${n2ip(a)}${dd?' '+esc(dd.name):''}"></i>`)}
+h+=`<h4>Address space</h4><div class="cells">${cells.join('')}</div><small class="mu">blue network · red broadcast · green router/gateway · cyan used · slate DHCP pool (.100–.199) · dark free</small>`}}
+h+=`<h4>VLSM planner</h4><div class="row"><input id="blk" value="${esc(window._blk||'192.168.0.0/16')}" placeholder="address block"></div><textarea id="req">${esc(window._req||'Administration:12\nIT:25\nGuest Wi-Fi:40\nServers:8')}</textarea><button onclick="window._blk=$('#blk').value;window._req=$('#req').value;drawTab()">Plan</button>`;
+const bp=parseAddr(window._blk||'192.168.0.0/16');if(bp&&bp.len!==null&&!bp.err){const bc=calc(ip2n(bp.ip),bp.len);let cur=bc.net,rows=[],er='';(window._req||'Administration:12\nIT:25\nGuest Wi-Fi:40\nServers:8').split('\n').map(s=>s.split(':')).filter(a=>a.length==2&&+a[1]>0).map(a=>({n:a[0].trim(),h:+a[1]})).sort((a,b)=>b.h-a.h).forEach(r=>{if(er)return;let b=2;while(2**b-2<r.h)b++;const sz=2**b;cur=Math.ceil(cur/sz)*sz;if(cur+sz-1>bc.bc){er=`Block exhausted at "${r.n}"`;return}rows.push({...r,net:cur,l:32-b,sz});cur+=sz});
+h+=er?`<p class="r">${er}</p>`:'';h+=`<table class="t"><tr><th>name</th><th>need</th><th>subnet</th><th>gateway</th><th>hosts</th><th>broadcast</th></tr>${rows.map(r=>`<tr><td>${esc(r.n)}</td><td>${r.h}</td><td>${n2ip(r.net)}/${r.l}</td><td>${n2ip(r.net+1)}</td><td>${n2ip(r.net+1)}–${n2ip(r.net+r.sz-2)} (${r.sz-2})</td><td>${n2ip(r.net+r.sz-1)}</td></tr>`).join('')}</table>`}else h+='<p class="r">Enter a block like 192.168.0.0/16</p>'}
+else if(tab=='vlan')h=vlTab();
+else if(tab=='atk'){const A=cl(),V=sv(),op=(a,s)=>a.map(d=>`<option value="${d.id}" ${d.id==s?'selected':''}>${esc(d.name)} ${esc(d.ifs[0].ip)}</option>`).join('');
+h=A.length&&V.length?`<p class="mu">All scenarios run only on simulated devices and generated packets. Nothing leaves the browser.</p><div class="row"><select onchange="atk.a=+this.value">${op(A,atk.a)}</select><select onchange="atk.t=+this.value">${op(V,atk.t)}</select></div><div class="row"><button onclick="scan()">Port scan</button><button onclick="brute()">Brute-force login</button><button onclick="flood()">SYN flood (bounded)</button></div><label><input type="checkbox" style="width:auto" ${atk.lock?'checked':''} onchange="atk.lock=this.checked"> Account lockout (brute-force)</label><br><label><input type="checkbox" style="width:auto" ${atk.rl?'checked':''} onchange="atk.rl=this.checked"> Rate limiting (flood)</label><div class="tl" id="ar" style="max-height:none;margin-top:6px">Tip: set the server's deny list to 22 to see "filtered" results. ARP spoofing, DNS spoofing, MITM and VLANs are not in this build.</div>`:'<div class="empty">Needs at least one client and one server. Load the sample lab.</div><div class="tl" id="ar" style="display:none"></div>'}
+else h=`<div class="row"><button onclick="out(JSON.stringify(S,null,1))">Export JSON</button><button onclick="imp()">Import JSON</button><button onclick="plan()">IP plan</button><button onclick="inv()">Inventory</button><button onclick="rep()">Incident report</button><button onclick="runTests()">Self-tests</button></div><textarea id="po" style="min-height:140px" placeholder="Output appears here. Paste JSON here to import."></textarea><p class="mu">Projects autosave in this browser. Configuration (devices, cables) is stored separately from runtime state (packets, ARP, MAC tables), which Reset simulation clears.</p>`;
+p.innerHTML=h}
+const out=s=>{$('#po').value=s};
+function imp(){try{const j=JSON.parse($('#po').value);if(!Array.isArray(j.devs)||!Array.isArray(j.links))throw 0;S=j;sel=selL=null;resetSim();toast('Imported')}catch(e){toast('Not a valid NetLab JSON project')}}
+const plan=()=>out(S.devs.flatMap(d=>d.ifs.filter(f=>f.ip).map((f,i)=>{const c=calc(ip2n(f.ip)||0,f.len);return`${d.name} eth${i}\t${f.ip}/${f.len}\tnet ${n2ip(c.net)}\tgw ${d.gw||'-'}`})).join('\n')||'No addresses assigned.');
+const inv=()=>out(S.devs.map(d=>`${d.name}\t${T[d.type].l}\t${d.ifs.length} ports\t${S.links.filter(l=>l.a.d==d.id||l.b.d==d.id).length} cables`).join('\n')||'No devices.');
+const rep=()=>out(`SIMULATED INCIDENT REPORT (lab data only)\nAlerts: ${R.al.length}, events: ${R.ev.length}, packets: ${R.pk.length}\n\n`+(R.al.map((a,i)=>`${i+1}. ${a.title} [${a.sev}]\n   What: ${a.what}\n   Evidence: ${a.evd}\n   Verdict: ${a.verdict}\n   Recommended: ${a.def}`).join('\n\n')||'No alerts recorded. Run an attack scenario first.'));
+/* ---------- interactions ---------- */
+const pal=$('#pal');Object.entries(T).forEach(([k,v])=>{const b=document.createElement('button');b.textContent='+ '+v.l;b.onclick=()=>{const n=S.devs.length;const d=addDev(k,100+(n*60)%700,100+(n*50)%380);selectDev(d.id)};pal.appendChild(b)});
+const cv=$('#cv');let drag=null;const pos=e=>{const p=cv.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(cv.getScreenCTM().inverse())};
+cv.addEventListener('pointerdown',e=>{const g=e.target.closest('[data-d]'),k=e.target.closest('[data-l]');
+if(g){const id=+g.dataset.d;if(mode=='cable'){if(!from){from=id}else{connect(from,id);from=null}render();return}selectDev(id);const p=pos(e),d=dev(id);drag={id,dx:d.x-p.x,dy:d.y-p.y}}else if(k){selL=+k.dataset.l;sel=null;render();drawTab()}else{sel=selL=null;from=null;render();drawTab()}});
+addEventListener('pointermove',e=>{if(!drag)return;const p=pos(e),d=dev(drag.id);d.x=Math.max(30,Math.min(870,Math.round((p.x+drag.dx)/20)*20));d.y=Math.max(30,Math.min(520,Math.round((p.y+drag.dy)/20)*20));render()});
+addEventListener('pointerup',()=>drag=null);
+addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.key=='Delete'||e.key=='Backspace')delSel();else if(e.key=='c'||e.key=='C')setMode();else if(e.key=='Escape'){mode='sel';from=null;render()}});
+try{const s=JSON.parse(localStorage.getItem('netlab'));if(s&&s.devs&&s.devs.length)S=s}catch(e){}
+if(!S.devs.length)sample();else render();drawTab();
+if(window.netlab){netlab.onOpenProject(t=>{try{const j=JSON.parse(t);if(!Array.isArray(j.devs)||!Array.isArray(j.links))throw 0;S=j;sel=selL=null;resetSim();toast('Project opened')}catch(e){toast('Not a valid NetLab JSON project')}});netlab.onSaveRequest(()=>netlab.saveProject(JSON.stringify(S,null,1)).then(r=>{if(r&&r.ok)toast('Project saved')}))}
+</script></body></html>
