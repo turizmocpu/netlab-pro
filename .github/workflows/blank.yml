@@ -1,19 +1,10 @@
-name: Build Windows
-'on': workflow_dispatch:
-jobs: build: name: Build NetLab Pro runs-on: windows-latest
-steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+name: Test
 
-  - name: Install Node.js
-    uses: actions/setup-node@v4
-    with:
-      node-version: 20
+on: workflow_dispatch
 
-  - name: Check project files
-    run: |
-      if (!(Test-Path "package.json")) {
-        Write-Error "package.json not found. Upload the project files first."
-        exit 1
-      }
-      Write-Host "Project files found."
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Check
+        run: echo Hello
