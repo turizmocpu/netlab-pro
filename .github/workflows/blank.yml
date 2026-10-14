@@ -1,11 +1,33 @@
+
 name: Build Windows
 
-on:
+'on':
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Test workflow
-        run: echo "Workflow works"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Windows application
+        run: npm run build --if-present
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetLabPro-Windows
+          path: |
+            dist/**
+            release/**
+            out/**
+          if-no-files-found: warn
